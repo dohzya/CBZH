@@ -1,7 +1,20 @@
-@(message: String)
+@(top10: Seq[Player])
 
-@main("Welcome to Play") {
+@main("Hackday - points") {
 
-    @play20.welcome(message)
+  <h1>Dashboard</h1>
+
+  <h2>me</h2>
+
+  <h2>TOP10</h2>
+
+  <table>
+  @top10.map { player =>
+    <tr>
+      <td>@player.points</td>
+      <td>@player.name</td>
+    </tr>
+  }
+  </table>
 
 }
