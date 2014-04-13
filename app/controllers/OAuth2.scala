@@ -22,7 +22,7 @@ import play.api.libs.ws._
 import models.Player
 import engine.Players
 
-trait Authentication {
+trait OAuth2 {
   this: Controller =>
 
   case class AuthenticatedRequest[A](request: Request[A], player: Player) extends WrappedRequest(request)
@@ -31,23 +31,23 @@ trait Authentication {
 
   object Authenticated extends ActionBuilder[AuthenticatedRequest] {
     def invokeBlock[A](request: Request[A], block: (AuthenticatedRequest[A]) => Future[SimpleResult]) = {
-      Authentication.TokenResponse.fromSession(request.session) match {
+      OAuth2.TokenResponse.fromSession(request.session) match {
         case Some(token) =>
-          Authentication.getProfile(token).flatMap {
+          OAuth2.getProfile(token).flatMap {
             case Success(profile) => profile.toPlayer.flatMap { player =>
               block(AuthenticatedRequest(request, player))
             }
-            case Failure(Authentication.OAuthErrorResult(errorResult)) => Future.successful { errorResult }
+            case Failure(OAuth2.OAuthErrorResult(errorResult)) => Future.successful { errorResult }
             case Failure(error) => Future.successful { InternalServerError("Internal Error") }
           }
-        case None => Future.successful { Redirect(Authentication.connectionURL) }
+        case None => Future.successful { Redirect(OAuth2.connectionURL) }
       }
     }
   }
 
 }
 
-object Authentication extends Controller {
+object OAuth2 extends Controller {
   import play.api.data._
   import play.api.data.Forms._
 
@@ -130,7 +130,7 @@ object Authentication extends Controller {
             getToken(code).flatMap {
               case Success(token) =>
                 Logger("oauth2.callback").debug(s"Token: $token")
-                Authentication.getProfile(token).flatMap {
+                getProfile(token).flatMap {
                   case Success(profile) => profile.toPlayer.map { player =>
                     val target = routes.Application.index
                     Redirect(target).withSession(
@@ -138,7 +138,7 @@ object Authentication extends Controller {
                       "expiresIn" -> token.expiresIn.getMillis.toString
                     )
                   }
-                  case Failure(Authentication.OAuthErrorResult(errorResult)) => Action(errorResult)(request)
+                  case Failure(OAuthErrorResult(errorResult)) => Action(errorResult)(request)
                   case Failure(error) =>
                     Logger("oauth2.callback").error("Received error", error)
                     Action(InternalServerError("Internal Error"))(request)

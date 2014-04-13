@@ -5,9 +5,9 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /login                      controllers.Authentication.login
-GET     /logout                     controllers.Authentication.logout
-GET     /oauth2callback             controllers.Authentication.oauth2callback
+GET     /login                      controllers.OAuth2.login
+GET     /logout                     controllers.OAuth2.logout
+GET     /oauth2callback             controllers.OAuth2.oauth2callback
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
