@@ -10,8 +10,14 @@
 
   <ul>
   @for(log <- logs) {
-    @defining(players.get(log.playerId).map(_.name)) { name =>
-      <li>@log.date : @name @log.msg @log.by @showPoints(log.diff)</li>
+    @defining(players.get(log.playerId)) { player =>
+      <li>
+        @log.date :
+        @(player.map(_.name))(@player.map(_.points))
+        @log.msg
+        @log.by.map { b => [@b] }
+        @showPoints(log.diff)
+      </li>
     }
   }
   </ul>
