@@ -69,14 +69,15 @@ object Players {
       BSONDocument("_id" -> player.oid),
       BSONDocument("$inc" -> BSONDocument("points" -> log.diff))
     ).flatMap { _ =>
-      Logs.insert(log).flatMap { _ =>
-        collection.find(
-          BSONDocument("_id" -> player.oid),
-          BSONDocument("points" -> 1)
-        ).one[BSONDocument].map { doc =>
-          val points = doc.flatMap(_.getAs[Int]("points")).getOrElse {
-            throw new java.lang.RuntimeException(s"Can't find player ${player.oid}'s ‘point’ field!")
-          }
+      collection.find(
+        BSONDocument("_id" -> player.oid),
+        BSONDocument("points" -> 1)
+      ).one[BSONDocument].flatMap { doc =>
+        val points = doc.flatMap(_.getAs[Int]("points")).getOrElse {
+          Logs.insert(log)  // do not lose this info
+          throw new java.lang.RuntimeException(s"Can't find player ${player.oid}'s ‘point’ field!")
+        }
+        Logs.insert(log.copy(newPoints = points)).map { _ =>
           player.copy(points = points)
         }
       }

@@ -13,10 +13,11 @@
     @defining(players.get(log.playerId)) { player =>
       <li>
         @log.date :
-        @(player.map(_.name))(@player.map(_.points))
+        @player.map(_.name)
         @log.msg
         @log.by.map { b => [@b] }
         @showPoints(log.diff)
+        :: @log.oldPoints ⇒ @log.newPoints
       </li>
     }
   }
