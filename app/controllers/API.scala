@@ -7,6 +7,7 @@ import play.api._
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.Play.current
 
 import models.Log
 import engine.Players
@@ -23,32 +24,30 @@ object API extends Controller {
     }
   }
 
-  def update(email: String) = Action.async(parse.json) { implicit req =>
-    val reader = (
-      (__ \ "diff").read[Int] ~
-      (__ \ "msg").read[String] ~
-      (__ \ "by").read[String]
-    ).tupled
-    reader.reads(req.body).fold(
-      err => Future.successful {
-        BadRequest(Json.obj("error" -> "Bad request"))
-      },
-      { case (diff, msg, by) =>
-        Players.findByEmail(email).flatMap {
-          case Some(player) =>
-            val log = Log.create(player, diff, msg, Some(by))
-            Players.updatePoints(player, log).map { player =>
-              Ok(Json.obj(
-                "email" -> email,
-                "points" -> player.points
-              ))
+  def update(email: String, app: String, token: String) = Action.async(parse.json) { implicit req =>
+    Play.configuration.getString(s"app.$app.token") match {
+      case Some(`token`) =>
+        val reader = ((__ \ "diff").read[Int] ~ (__ \ "msg").read[String]).tupled
+        reader.reads(req.body).fold(
+          err => Future.successful {BadRequest(Json.obj("error" -> "Bad request")) },
+          { case (diff, msg) =>
+            Players.findByEmail(email).flatMap {
+              case Some(player) =>
+                val log = Log.create(player, diff, msg, Some(app))
+                Players.updatePoints(player, log).map { player =>
+                  Ok(Json.obj(
+                    "email" -> email,
+                    "points" -> player.points
+                  ))
+                }
+              case None => Future.successful {
+                NotFound(Json.obj("error" -> s"Player $email not found"))
+              }
             }
-          case None => Future.successful {
-            NotFound(Json.obj("error" -> s"Player $email not found"))
           }
-        }
-      }
-    )
+        )
+      case _ => Future.successful { NotFound(Json.obj("error" -> "Application now found")) }
+    }
   }
 
 }
