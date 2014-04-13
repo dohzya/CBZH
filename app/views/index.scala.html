@@ -1,10 +1,13 @@
-@(top10: Seq[Player])
+@(top10: Seq[Player])(implicit me: Player)
 
 @main("Hackday - points") {
 
   <h1>Dashboard</h1>
 
   <h2>me</h2>
+
+  <div>@me.name</div>
+  <div>@me.points</div>
 
   <h2>TOP10</h2>
 

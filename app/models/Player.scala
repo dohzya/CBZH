@@ -2,23 +2,41 @@ package models
 
 import reactivemongo.bson.BSONObjectID
 
+case class Profile(
+  id: String,
+  email: String,
+  verifiedEmail: Boolean,
+  name: String,
+  givenName: String,
+  familyName: String,
+  link: String,
+  picture: Option[String] = None,
+  gender: String,
+  birthday: Option[String] = None,
+  locale: Option[String] = None
+)
 case class Player(
   oid: BSONObjectID,
   trigram: String,
-  name: String,
+  profile: Profile,
   points: Int
 ) {
   def id = oid.stringify
+  def email = profile.email
+  def name = profile.name
 }
 object Player {
-  def create(
-    trigram: String,
-    name: String,
-    points: Int
-  ) = Player(
-    oid = BSONObjectID.generate,
-    trigram = trigram,
-    name = name,
-    points = points
-  )
+  def create(profile: Profile) = {
+    val rx = """^(...)@zen(exity|gularity).com$""".r
+    val trigram = profile match {
+      case rx(t) => t
+      case _ => "???"
+    }
+    Player(
+      oid = BSONObjectID.generate,
+      trigram = trigram,
+      profile = profile,
+      points = 0
+    )
+  }
 }

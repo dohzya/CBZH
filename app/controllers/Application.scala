@@ -7,9 +7,9 @@ import play.api.mvc._
 
 import engine.Players
 
-object Application extends Controller {
+object Application extends Controller with Authentication {
 
-  def index = Action.async { req =>
+  def index = Authenticated.async { implicit req =>
     Players.top10.map { top10 =>
       Ok(views.html.index(top10))
     }

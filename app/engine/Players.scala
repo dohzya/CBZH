@@ -10,7 +10,7 @@ import reactivemongo.bson._
 
 import play.api.Play.current
 
-import models.Player
+import models.{ Profile, Player }
 
 object Players {
 
@@ -33,6 +33,21 @@ object Players {
               .collect[Seq](upTo = 10)
   }
 
+  def fromProfile(profile: Profile): Future[Player] = {
+    collection.find(BSONDocument("profile.id" -> profile.id)).one[Player].flatMap {
+      case Some(player) => updateProfile(player, profile)
+      case None => insert(Player.create(profile))
+    }
+  }
+
+  def updateProfile(player: Player, profile: Profile): Future[Player] = {
+    collection.update(
+      BSONDocument("_id" -> player.oid),
+      BSONDocument("$set" -> BSONDocument("profile" -> profile))
+    ).map(_ => player.copy(profile = profile))
+  }
+
+  implicit val profileHandler = Macros.handler[Profile]
   implicit val playerHandler = Macros.handler[Player]
 
 }
