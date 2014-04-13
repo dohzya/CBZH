@@ -6,6 +6,8 @@
 GET     /                           controllers.Application.index
 GET     /logs                       controllers.Application.logs
 
+GET     /api/player/:email/points   controllers.API.getPoint(email)
+
 GET     /login                      controllers.OAuth2.login
 GET     /logout                     controllers.OAuth2.logout
 GET     /oauth2callback             controllers.OAuth2.oauth2callback

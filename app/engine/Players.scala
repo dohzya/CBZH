@@ -46,6 +46,10 @@ object Players {
       }
   }
 
+  def findByEmail(email: String): Future[Option[Player]] = {
+    collection.find(BSONDocument("profile.email" -> email)).one[Player]
+  }
+
   def fromProfile(profile: Profile): Future[Player] = {
     collection.find(BSONDocument("profile.id" -> profile.id)).one[Player].flatMap {
       case Some(player) => updateProfile(player, profile)
