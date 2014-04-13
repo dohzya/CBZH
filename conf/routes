@@ -7,7 +7,7 @@ GET     /                           controllers.Application.index
 GET     /logs                       controllers.Application.logs
 
 GET     /api/player/:email/points   controllers.API.getPoint(email)
-POST    /api/player/:email/update   controllers.API.update(email, diff: Int, msg, by)
+POST    /api/player/:email/update   controllers.API.update(email)
 
 GET     /login                      controllers.OAuth2.login
 GET     /logout                     controllers.OAuth2.logout
