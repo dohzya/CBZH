@@ -13,7 +13,8 @@ import reactivemongo.bson._
 import play.api.Play.current
 import play.api.Logger
 
-import models.{ Log, Player }
+import engine.Apps
+import models.{ App, Log, Player }
 
 object Logs {
 
@@ -32,11 +33,16 @@ object Logs {
               .collect[Seq]()
   }
 
-  def allWithPlayers: Future[(Seq[Log], Map[BSONObjectID, Player])] = {
+  def allWithPlayers: Future[(Seq[Log], Map[String, App], Map[BSONObjectID, Player])] = {
     all.flatMap { logs =>
+      val appIds = logs.map(_.appId).flatten.distinct
       val playerIds = logs.map(_.playerId).distinct
-      Players.findAllById(playerIds).map { players =>
-        logs -> players.map(p => p.oid -> p).toMap
+      (
+        Apps.findAllById(appIds) zip Players.findAllById(playerIds)
+      ).map { case (apps, players) =>
+        val appsMap = apps.map(a => a.id -> a).toMap
+        val playersMap = players.map(p => p.oid -> p).toMap
+        (logs, appsMap, playersMap)
       }
     }
   }

@@ -1,9 +1,20 @@
-@(logs: Seq[Log], players: Map[reactivemongo.bson.BSONObjectID, Player])(implicit me: Player)
+@(
+  logs: Seq[Log],
+  apps: Map[String, App],
+  players: Map[reactivemongo.bson.BSONObjectID, Player]
+)(implicit me: Player)
 
 @showPoints(points: Int) = {
   @if(points != 0) {
     (@if(points > 0){+}@points points)
   }
+}
+
+@showApp(app: App) = {
+  [@app.url match {
+    case Some(url) => {<a href="@url">@app.nameOrKey</a>}
+    case _ => {@app.nameOrKey}
+  }]
 }
 
 @main("Hackday - last changes") {
@@ -15,7 +26,7 @@
         @log.date :
         @player.map(_.name)
         @log.msg
-        @log.by.map { b => [@b] }
+        @log.appId.flatMap(apps.get(_)).map { a => @showApp(a) }
         @showPoints(log.diff)
         :: @log.oldPoints ⇒ @log.newPoints
       </li>

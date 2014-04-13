@@ -11,11 +11,11 @@ case class Log(
   oldPoints: Int,
   newPoints: Int,
   msg: String,
-  by: Option[String],
+  appId: Option[String],
   date: DateTime
 )
 object Log {
-  def create(player: Player, diff: Int, msg: String, by: Option[String]) = {
+  def create(player: Player, diff: Int, msg: String, appId: Option[String]) = {
     Log(
       oid = BSONObjectID.generate,
       playerId = player.oid,
@@ -23,7 +23,7 @@ object Log {
       oldPoints = player.points,
       newPoints = player.points + diff,
       msg = msg,
-      by = by,
+      appId = appId,
       date = DateTime.now
     )
   }

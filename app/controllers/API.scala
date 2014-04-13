@@ -10,7 +10,7 @@ import play.api.libs.functional.syntax._
 import play.api.Play.current
 
 import models.Log
-import engine.Players
+import engine.{ Apps, Players }
 
 object API extends Controller {
 
@@ -24,16 +24,16 @@ object API extends Controller {
     }
   }
 
-  def update(email: String, app: String, token: String) = Action.async(parse.json) { implicit req =>
-    Play.configuration.getString(s"app.$app.token") match {
-      case Some(`token`) =>
+  def update(email: String, appKey: String, token: String) = Action.async(parse.json) { implicit req =>
+    Apps.checkToken(appKey, token).flatMap {
+      case Some(app) =>
         val reader = ((__ \ "diff").read[Int] ~ (__ \ "msg").read[String]).tupled
         reader.reads(req.body).fold(
           err => Future.successful {BadRequest(Json.obj("error" -> "Bad request")) },
           { case (diff, msg) =>
             Players.findByEmail(email).flatMap {
               case Some(player) =>
-                val log = Log.create(player, diff, msg, Some(app))
+                val log = Log.create(player, diff, msg, Some(app.id))
                 Players.updatePoints(player, log).map { player =>
                   Ok(Json.obj(
                     "email" -> email,
@@ -46,7 +46,9 @@ object API extends Controller {
             }
           }
         )
-      case _ => Future.successful { NotFound(Json.obj("error" -> "Application now found")) }
+      case None => Future.successful {
+        NotFound(Json.obj("error" -> "Application now found"))
+      }
     }
   }
 

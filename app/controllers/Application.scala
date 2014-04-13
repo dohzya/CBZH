@@ -16,8 +16,8 @@ object Application extends Controller with OAuth2 {
   }
 
   def logs = Authenticated.async { implicit req =>
-    Logs.allWithPlayers.map { case (logs, players) =>
-      Ok(views.html.logs(logs, players))
+    Logs.allWithPlayers.map { case (logs, apps, players) =>
+      Ok(views.html.logs(logs, apps, players))
     }
   }
 
