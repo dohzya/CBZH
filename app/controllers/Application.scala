@@ -5,13 +5,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import play.api._
 import play.api.mvc._
 
-import engine.Players
+import engine.{ Logs, Players }
 
 object Application extends Controller with OAuth2 {
 
   def index = Authenticated.async { implicit req =>
     Players.top10.map { top10 =>
       Ok(views.html.index(top10))
+    }
+  }
+
+  def logs = Authenticated.async { implicit req =>
+    Logs.allWithPlayers.map { case (logs, players) =>
+      Ok(views.html.logs(logs, players))
     }
   }
 

@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /logs                       controllers.Application.logs
 
 GET     /login                      controllers.OAuth2.login
 GET     /logout                     controllers.OAuth2.logout

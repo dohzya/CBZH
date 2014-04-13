@@ -2,7 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api._
 
-import models.{ Player, Profile }
+import models.{ Log, Player, Profile }
 import engine.Players
 
 object Global extends GlobalSettings {
@@ -11,8 +11,8 @@ object Global extends GlobalSettings {
    Players.empty.map { empty =>
       if (empty) {
         Seq(
-          Player.create(Profile(
-            id = "",
+          Profile(
+            id = "fake1",
             email = "ast@zengularity.com",
             verifiedEmail = true,
             name = "Alexandre STANISLAWSKI",
@@ -20,9 +20,9 @@ object Global extends GlobalSettings {
             familyName = "STANISLAWSKI",
             link = "",
             gender = ""
-          )).copy(points = 5235),
-          Player.create(Profile(
-            id = "",
+          ) -> 5235,
+          Profile(
+            id = "fake2",
             email = "jba@zengularity.com",
             verifiedEmail = true,
             name = "Jacques BECHERELLE",
@@ -30,9 +30,9 @@ object Global extends GlobalSettings {
             familyName = "BECHERELLE",
             link = "",
             gender = ""
-          )).copy(points = 4645),
-          Player.create(Profile(
-            id = "",
+          ) -> 4645,
+          Profile(
+            id = "fake3",
             email = "nla@zengularity.com",
             verifiedEmail = true,
             name = "Nathanaël LAMELIÈRE",
@@ -40,9 +40,9 @@ object Global extends GlobalSettings {
             familyName = "LAMELIÈRE",
             link = "",
             gender = ""
-          )).copy(points = 3568),
-          Player.create(Profile(
-            id = "",
+          ) -> 3568,
+          Profile(
+            id = "fake4",
             email = "gre@zengularity.com",
             verifiedEmail = true,
             name = "Gaëtan RENEDAUD",
@@ -50,9 +50,9 @@ object Global extends GlobalSettings {
             familyName = "RENEDAUD",
             link = "",
             gender = ""
-          )).copy(points = 3457),
-          Player.create(Profile(
-            id = "",
+          ) -> 3457,
+          Profile(
+            id = "fake5",
             email = "vbr@zengularity.com",
             verifiedEmail = true,
             name = "Valerian BARBOT",
@@ -60,9 +60,9 @@ object Global extends GlobalSettings {
             familyName = "BARBOT",
             link = "",
             gender = ""
-          )).copy(points = 2452),
-          Player.create(Profile(
-            id = "",
+          ) -> 2452,
+          Profile(
+            id = "fake6",
             email = "gge@zengularity.com",
             verifiedEmail = true,
             name = "Gwenaëlle GEORGET",
@@ -70,9 +70,9 @@ object Global extends GlobalSettings {
             familyName = "GEORGET",
             link = "",
             gender = ""
-          )).copy(points = 2314),
-          Player.create(Profile(
-            id = "",
+          ) -> 2314,
+          Profile(
+            id = "fake7",
             email = "evo@zengularity.com",
             verifiedEmail = true,
             name = "Étienne VALLETTE d'OSIA",
@@ -80,8 +80,13 @@ object Global extends GlobalSettings {
             familyName = "VALLETTE d'OSIA",
             link = "",
             gender = ""
-          )).copy(points = 346)
-        ).map(Players.insert)
+          ) -> 346
+        ).map { case (profile, points) =>
+          Players.fromProfile(profile).map { player =>
+            val log = Log.create(player, points, "did some awesome stuff!", None)
+            Players.updatePoints(player, log)
+          }
+        }
       }
     }
   }

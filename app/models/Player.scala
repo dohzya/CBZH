@@ -1,6 +1,7 @@
 package models
 
 import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.Macros.Annotations.Key
 
 case class Profile(
   id: String,
@@ -16,7 +17,7 @@ case class Profile(
   locale: Option[String] = None
 )
 case class Player(
-  oid: BSONObjectID,
+  @Key("_id") oid: BSONObjectID,
   trigram: String,
   profile: Profile,
   points: Int

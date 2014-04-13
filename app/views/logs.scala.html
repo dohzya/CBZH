@@ -1,0 +1,19 @@
+@(logs: Seq[Log], players: Map[reactivemongo.bson.BSONObjectID, Player])(implicit me: Player)
+
+@showPoints(points: Int) = {
+  @if(points != 0) {
+    (@if(points > 0){+}@points points)
+  }
+}
+
+@main("Hackday - last changes") {
+
+  <ul>
+  @for(log <- logs) {
+    @defining(players.get(log.playerId).map(_.name)) { name =>
+      <li>@log.date : @name @log.msg @log.by @showPoints(log.diff)</li>
+    }
+  }
+  </ul>
+
+}
