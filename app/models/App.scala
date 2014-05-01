@@ -7,5 +7,4 @@ case class App(
   token: String
 ) {
   def id = key
-  def nameOrKey = name.getOrElse(key)
 }

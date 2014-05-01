@@ -13,7 +13,9 @@ case class Log(
   msg: String,
   appId: Option[String],
   date: DateTime
-)
+) {
+  def id = oid.stringify
+}
 object Log {
   def create(player: Player, diff: Int, msg: String, appId: Option[String]) = {
     Log(

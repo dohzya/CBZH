@@ -4,32 +4,28 @@
   players: Map[reactivemongo.bson.BSONObjectID, Player]
 )(implicit me: Player)
 
-@showPoints(points: Int) = {
-  @if(points != 0) {
-    (@if(points > 0){+}@points points)
-  }
-}
+@import play.api.libs.json._
 
-@showApp(app: App) = {
-  [@app.url match {
-    case Some(url) => {<a href="@url">@app.nameOrKey</a>}
-    case _ => {@app.nameOrKey}
-  }]
-}
+@import formats.Logs._
+@import formats.Players._
 
 @main("Hackday - last changes") {
+
+  <script>
+    window.pageInfos = {
+      logs: @{
+        implicit val writes = jsonLogWrites(players, apps)
+        Html(Json.stringify(JsObject(logs.map { log =>
+          log.id -> Json.toJson(log)
+        })))
+      }
+    };
+  </script>
 
   <ul>
   @for(log <- logs) {
     @defining(players.get(log.playerId)) { player =>
-      <li>
-        @log.date :
-        @player.map(_.name)
-        @log.msg
-        @log.appId.flatMap(apps.get(_)).map { a => @showApp(a) }
-        @showPoints(log.diff)
-        :: @log.oldPoints ⇒ @log.newPoints
-      </li>
+      <li data-log="@log.id"></li>
     }
   }
   </ul>
