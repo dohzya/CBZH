@@ -29,7 +29,7 @@ object API extends Controller {
       case Some(app) =>
         val reader = ((__ \ "diff").read[Int] ~ (__ \ "msg").read[String]).tupled
         reader.reads(req.body).fold(
-          err => Future.successful {BadRequest(Json.obj("error" -> "Bad request")) },
+          err => Future.successful { BadRequest(Json.obj("error" -> "Bad request")) },
           { case (diff, msg) =>
             Players.findByEmail(email).flatMap {
               case Some(player) =>
